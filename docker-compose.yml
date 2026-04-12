@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8
+    container_name: queue_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: queue_db
+      MYSQL_USER: queue_user
+      MYSQL_PASSWORD: queue_password
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: queue_app
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./src/main/webapp:/usr/local/tomcat/webapps/ROOT
+      - ./target/classes:/usr/local/tomcat/webapps/ROOT/WEB-INF/classes
+    environment:
+      - DB_URL=jdbc:mysql://db:3306/queue_db?allowPublicKeyRetrieval=true&useSSL=false
+      - DB_USER=queue_user
+      - DB_PASS=queue_password
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db_data:
