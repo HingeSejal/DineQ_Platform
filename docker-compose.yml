@@ -2,21 +2,20 @@ version: '3.8'
 
 services:
   db:
-    image: mysql:8
+    image: postgres:16
     container_name: queue_db
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: queue_db
-      MYSQL_USER: queue_user
-      MYSQL_PASSWORD: queue_password
+      POSTGRES_USER: queue_user
+      POSTGRES_PASSWORD: queue_password
+      POSTGRES_DB: queue_db
     ports:
-      - "3307:3306"
+      - "5432:5432"
     volumes:
-      - db_data:/var/lib/mysql
+      - db_data:/var/lib/postgresql/data
       - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD-SHELL", "pg_isready -U queue_user"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -30,7 +29,7 @@ services:
       - ./src/main/webapp:/usr/local/tomcat/webapps/ROOT
       - ./target/classes:/usr/local/tomcat/webapps/ROOT/WEB-INF/classes
     environment:
-      - DB_URL=jdbc:mysql://db:3306/queue_db?allowPublicKeyRetrieval=true&useSSL=false
+      - DB_URL=jdbc:postgresql://db:5432/queue_db
       - DB_USER=queue_user
       - DB_PASS=queue_password
     depends_on:
