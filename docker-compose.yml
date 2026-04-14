@@ -1,25 +1,6 @@
 version: '3.8'
 
 services:
-  db:
-    image: postgres:16
-    container_name: queue_db
-    restart: always
-    environment:
-      POSTGRES_USER: queue_user
-      POSTGRES_PASSWORD: queue_password
-      POSTGRES_DB: queue_db
-    ports:
-      - "5432:5432"
-    volumes:
-      - db_data:/var/lib/postgresql/data
-      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U queue_user"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   app:
     build: .
     container_name: queue_app
@@ -29,12 +10,6 @@ services:
       - ./src/main/webapp:/usr/local/tomcat/webapps/ROOT
       - ./target/classes:/usr/local/tomcat/webapps/ROOT/WEB-INF/classes
     environment:
-      - DB_URL=jdbc:postgresql://db:5432/queue_db
-      - DB_USER=queue_user
-      - DB_PASS=queue_password
-    depends_on:
-      db:
-        condition: service_healthy
-
-volumes:
-  db_data:
+      - DB_URL=jdbc:postgresql://ep-plain-block-a1h9ffwn-pooler.ap-southeast-1.aws.neon.tech:5432/neondb?sslmode=require
+      - DB_USER=neondb_owner
+      - DB_PASS=npg_XexFlgN0WLd3
