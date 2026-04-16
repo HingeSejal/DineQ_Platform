@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", function() {
     function updateTimeline(state) {
         const fill = document.getElementById("ui-timeline-fill");
         const nodeQ = document.getElementById("node-queue");
-        const nodeS = document.getElementById("node-serving");
+        const nodeS = document.getElementById("node-available");
         const nodeD = document.getElementById("node-done");
         
         if (!fill) return;
@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", function() {
         if (state === 'waiting') {
             fill.style.width = "0%";
             nodeQ.classList.add("active");
-        } else if (state === 'serving') {
+        } else if (state === 'available') {
             fill.style.width = "50%";
             nodeQ.classList.add("done");
             nodeS.classList.add("active");
@@ -50,8 +50,8 @@ document.addEventListener("DOMContentLoaded", function() {
             html = '<span class="badge badge-waiting"><i class="fa-solid fa-hourglass-half"></i> In Queue</span>';
         } else if (status === 'next') {
             html = '<span class="live-badge"><div class="live-dot"></div> You Are Next</span>';
-        } else if (status === 'serving') {
-            html = '<span class="badge badge-serving"><i class="fa-solid fa-concierge-bell"></i> Now Serving</span>';
+        } else if (status === 'available') {
+            html = '<span class="live-badge" style="background: rgba(16, 185, 129, 0.2); color: var(--success);"><div class="live-dot" style="background:var(--success)"></div> Table Ready!</span>';
         } else if (status === 'completed') {
             html = '<span class="badge badge-completed"><i class="fa-solid fa-check-double"></i> Completed</span>';
         } else if (status === 'skipped') {
@@ -83,10 +83,10 @@ document.addEventListener("DOMContentLoaded", function() {
                     if(document.getElementById("ui-position")) document.getElementById("ui-position").innerText = data.position;
                     if(document.getElementById("ui-wait")) document.getElementById("ui-wait").innerText = data.waitMins;
                     
-                    if (data.position === 0 && data.status === 'serving') {
-                        if(document.getElementById("ui-status-text")) document.getElementById("ui-status-text").innerText = "Please proceed to your table!";
-                        setStatusBadge('serving');
-                        updateTimeline('serving');
+                    if (data.status === 'available') {
+                        if(document.getElementById("ui-status-text")) document.getElementById("ui-status-text").innerText = "Table is available, you're next!";
+                        setStatusBadge('available');
+                        updateTimeline('available');
                         
                         // Highlight border green
                         document.querySelector('.pipeline-container').style.borderColor = 'var(--status-completed)';

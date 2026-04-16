@@ -2,6 +2,9 @@ CREATE TABLE IF NOT EXISTS hotels (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     description TEXT,
+    admin_username VARCHAR(50),
+    admin_pin VARCHAR(20),
+    available_tables INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

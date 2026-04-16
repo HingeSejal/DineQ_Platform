@@ -9,8 +9,12 @@
 
     <h2 style="font-size: 2.2rem; margin-bottom: 0.5rem;">Access Terminal</h2>
     
-    <div style="display:inline-block; background:rgba(255,255,255,0.05); padding: 0.5rem 1rem; border-radius:8px; margin-bottom: 2rem; color: var(--text-muted); font-size: 0.9rem;">
+    <div style="display:inline-block; background:rgba(255,255,255,0.05); padding: 0.5rem 1rem; border-radius:8px; margin-bottom: 1rem; color: var(--text-muted); font-size: 0.9rem;">
         <i class="fa-solid fa-location-dot" style="color:var(--primary)"></i> <%= request.getParameter("hotelName") != null ? request.getParameter("hotelName") : "Facility" %>
+    </div>
+    
+    <div style="color: var(--warning); font-size: 0.85rem; margin-bottom: 2rem; padding: 0 1rem; line-height: 1.4;">
+        <i class="fa-solid fa-circle-info"></i> Note: If credentials are not yet set for this facility, the details you enter will become the permanent access keys.
     </div>
     
     <% if (request.getAttribute("error") != null) { %>

@@ -26,6 +26,9 @@ public class QueueDAO {
                 h.setId(rs.getInt("id"));
                 h.setName(rs.getString("name"));
                 h.setDescription(rs.getString("description"));
+                h.setAdminUsername(rs.getString("admin_username"));
+                h.setAdminPin(rs.getString("admin_pin"));
+                h.setAvailableTables(rs.getInt("available_tables"));
                 h.setCreatedAt(rs.getTimestamp("created_at"));
                 hotels.add(h);
             }
@@ -33,6 +36,57 @@ public class QueueDAO {
             e.printStackTrace();
         }
         return hotels;
+    }
+
+    public Hotel getHotelById(int hotelId) {
+        String sql = "SELECT * FROM hotels WHERE id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, hotelId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    Hotel h = new Hotel();
+                    h.setId(rs.getInt("id"));
+                    h.setName(rs.getString("name"));
+                    h.setDescription(rs.getString("description"));
+                    h.setAdminUsername(rs.getString("admin_username"));
+                    h.setAdminPin(rs.getString("admin_pin"));
+                    h.setAvailableTables(rs.getInt("available_tables"));
+                    h.setCreatedAt(rs.getTimestamp("created_at"));
+                    return h;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public boolean setAdminCredentials(int hotelId, String username, String pin) {
+        String sql = "UPDATE hotels SET admin_username = ?, admin_pin = ? WHERE id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, username);
+            stmt.setString(2, pin);
+            stmt.setInt(3, hotelId);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean updateAvailableTables(int hotelId, int tables) {
+        String sql = "UPDATE hotels SET available_tables = ? WHERE id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, tables);
+            stmt.setInt(2, hotelId);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     public Booking addBooking(int userId, int hotelId, String customerName, String seatingType, String bookingTime) {
@@ -99,7 +153,7 @@ public class QueueDAO {
 
     public List<Booking> getActiveBookingsByHotel(int hotelId) {
         List<Booking> list = new ArrayList<>();
-        String sql = "SELECT t.*, s.name as hotel_name FROM bookings t JOIN hotels s ON t.hotel_id = s.id WHERE t.status IN ('waiting', 'serving') AND t.hotel_id = ? ORDER BY t.status DESC, t.created_at ASC";
+        String sql = "SELECT t.*, s.name as hotel_name FROM bookings t JOIN hotels s ON t.hotel_id = s.id WHERE t.status IN ('waiting', 'available') AND t.hotel_id = ? ORDER BY t.status DESC, t.created_at ASC";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
@@ -116,7 +170,7 @@ public class QueueDAO {
     }
 
     public int getCurrentBookingsCount(int hotelId) {
-        String sql = "SELECT COUNT(*) as current_count FROM bookings WHERE hotel_id = ? AND status IN ('waiting', 'serving')";
+        String sql = "SELECT COUNT(*) as current_count FROM bookings WHERE hotel_id = ? AND status IN ('waiting', 'available')";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, hotelId);

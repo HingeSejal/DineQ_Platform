@@ -12,3 +12,4 @@ com\queueapp\servlet\RegisterServlet.class
 com\queueapp\model\Hotel.class
 com\queueapp\dao\QueueDAO.class
 com\queueapp\servlet\AdminServlet.class
+com\queueapp\UpdateDB.class

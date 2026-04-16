@@ -7,6 +7,9 @@ public class Hotel {
     private String name;
     private String description;
     private Timestamp createdAt;
+    private String adminUsername;
+    private String adminPin;
+    private int availableTables;
 
     // Getters and Setters
     public int getId() { return id; }
@@ -20,4 +23,13 @@ public class Hotel {
 
     public Timestamp getCreatedAt() { return createdAt; }
     public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
+
+    public String getAdminUsername() { return adminUsername; }
+    public void setAdminUsername(String adminUsername) { this.adminUsername = adminUsername; }
+
+    public String getAdminPin() { return adminPin; }
+    public void setAdminPin(String adminPin) { this.adminPin = adminPin; }
+
+    public int getAvailableTables() { return availableTables; }
+    public void setAvailableTables(int availableTables) { this.availableTables = availableTables; }
 }

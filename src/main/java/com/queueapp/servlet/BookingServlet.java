@@ -4,10 +4,12 @@ import com.queueapp.dao.QueueDAO;
 import com.queueapp.dao.BookingDAO;
 import com.queueapp.model.Booking;
 import com.queueapp.model.User;
+import com.queueapp.model.Hotel;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
 
 import java.io.IOException;
+import java.util.List;
 
 public class BookingServlet extends HttpServlet {
     private BookingDAO bookingDAO = new BookingDAO();
@@ -37,9 +39,17 @@ public class BookingServlet extends HttpServlet {
                     return;
                 }
             }
+        } else if ("delete".equals(action)) {
+            String bookingIdStr = req.getParameter("booking_id");
+            if (bookingIdStr != null) {
+                int bid = Integer.parseInt(bookingIdStr);
+                bookingDAO.deleteBooking(bid, user.getId());
+            }
             resp.sendRedirect(req.getContextPath() + "/dashboard");
         } else {
-            // Default Dashboard: Shows all hotels
+            // Default Dashboard: Shows history or booking options depending on nav
+            List<Booking> userHistory = bookingDAO.getBookingsByUser(user.getId());
+            req.setAttribute("history", userHistory);
             req.setAttribute("hotels", queueDAO.getAllHotels());
             req.getRequestDispatcher("/dashboard.jsp").forward(req, resp);
         }
@@ -60,9 +70,15 @@ public class BookingServlet extends HttpServlet {
 
         if (hotelIdStr != null && customerName != null && seatingType != null && bookingTime != null) {
             int hotelId = Integer.parseInt(hotelIdStr);
-            
             Booking b = queueDAO.addBooking(user.getId(), hotelId, customerName, seatingType, bookingTime);
             if (b != null) {
+                // Auto allocate logic check
+                Hotel h = queueDAO.getHotelById(hotelId);
+                int pos = queueDAO.getQueuePosition(b);
+                if (h != null && pos < h.getAvailableTables()) {
+                    bookingDAO.updateBookingStatus(b.getId(), "available");
+                }
+                
                 resp.sendRedirect(req.getContextPath() + "/dashboard?action=status&booking_id=" + b.getId());
                 return;
             }

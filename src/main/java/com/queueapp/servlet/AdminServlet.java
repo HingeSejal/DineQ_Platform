@@ -22,6 +22,7 @@ public class AdminServlet extends HttpServlet {
             return;
         }
         
+        req.setAttribute("hotel", queueDAO.getHotelById(hotelId));
         req.setAttribute("activeTokens", queueDAO.getActiveBookingsByHotel(hotelId));
         req.setAttribute("historyTokens", queueDAO.getHistoryBookings(hotelId));
         req.getRequestDispatcher("/admin.jsp").forward(req, resp);
@@ -37,12 +38,20 @@ public class AdminServlet extends HttpServlet {
             return;
         }
         
-        String tokenIdStr = req.getParameter("tokenId");
-        String status = req.getParameter("status"); // 'serving', 'completed', 'skipped'
-        
-        if (tokenIdStr != null && status != null) {
-            int tokenId = Integer.parseInt(tokenIdStr);
-            bookingDAO.updateBookingStatus(tokenId, status);
+        String action = req.getParameter("action");
+        if ("update_tables".equals(action)) {
+            String tablesStr = req.getParameter("availableTables");
+            if (tablesStr != null) {
+                queueDAO.updateAvailableTables(hotelId, Integer.parseInt(tablesStr));
+            }
+        } else {
+            String tokenIdStr = req.getParameter("tokenId");
+            String status = req.getParameter("status"); // 'available', 'completed', 'skipped'
+            
+            if (tokenIdStr != null && status != null) {
+                int tokenId = Integer.parseInt(tokenIdStr);
+                bookingDAO.updateBookingStatus(tokenId, status);
+            }
         }
         
         resp.sendRedirect(req.getContextPath() + "/admin");

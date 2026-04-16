@@ -1,6 +1,7 @@
 package com.queueapp.servlet;
 
 import com.queueapp.dao.QueueDAO;
+import com.queueapp.model.Hotel;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
 
@@ -33,14 +34,31 @@ public class AdminAuthServlet extends HttpServlet {
         String pass = req.getParameter("password");
         String hotelIdStr = req.getParameter("hotelId");
 
-        if ("admin".equals(user) && "Admin@1234".equals(pass)) {
-            if (hotelIdStr != null && !hotelIdStr.isEmpty()) {
-                HttpSession session = req.getSession();
-                session.setAttribute("role", "admin");
-                session.setAttribute("adminHotelId", Integer.parseInt(hotelIdStr));
-                
-                resp.sendRedirect(req.getContextPath() + "/admin");
-                return;
+        if (hotelIdStr != null && !hotelIdStr.isEmpty()) {
+            int hotelId = Integer.parseInt(hotelIdStr);
+            Hotel hotel = queueDAO.getHotelById(hotelId);
+            
+            if (hotel != null) {
+                if (hotel.getAdminUsername() == null || hotel.getAdminPin() == null) {
+                    // Setup new credentials
+                    if (user != null && !user.isEmpty() && pass != null && !pass.isEmpty()) {
+                        queueDAO.setAdminCredentials(hotelId, user, pass);
+                        HttpSession session = req.getSession();
+                        session.setAttribute("role", "admin");
+                        session.setAttribute("adminHotelId", hotelId);
+                        resp.sendRedirect(req.getContextPath() + "/admin");
+                        return;
+                    }
+                } else {
+                    // Login with existing credentials
+                    if (hotel.getAdminUsername().equals(user) && hotel.getAdminPin().equals(pass)) {
+                        HttpSession session = req.getSession();
+                        session.setAttribute("role", "admin");
+                        session.setAttribute("adminHotelId", hotelId);
+                        resp.sendRedirect(req.getContextPath() + "/admin");
+                        return;
+                    }
+                }
             }
         }
         

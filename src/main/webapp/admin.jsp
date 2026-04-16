@@ -10,9 +10,22 @@
         <div style="font-size: 0.95rem; color: var(--text-muted);"><i class="fa-solid fa-user-shield"></i> Welcome, ${user.username}</div>
     </div>
 
+    <!-- Facility Setup -->
+    <div style="margin-bottom: 2rem; background: rgba(0,0,0,0.2); padding: 1rem 1.5rem; border-radius: 8px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h4 style="margin: 0 0 0.5rem 0; font-size: 1.1rem;"><i class="fa-solid fa-chair" style="color: var(--primary);"></i> Available Tables</h4>
+            <p style="margin: 0; font-size: 0.9rem; color: var(--text-muted);">Configure how many tables are currently empty or assignable.</p>
+        </div>
+        <form action="${pageContext.request.contextPath}/admin" method="POST" style="display:flex; gap:0.5rem; align-items:center;">
+            <input type="hidden" name="action" value="update_tables">
+            <input type="number" name="availableTables" value="${hotel.availableTables}" min="0" max="100" class="form-control" style="width: 80px; text-align: center;">
+            <button type="submit" class="btn btn-sm">Update</button>
+        </form>
+    </div>
+
     <!-- Filter Buttons -->
     <div style="margin-bottom: 1.5rem; display:flex; gap:1rem;">
-        <button class="btn btn-sm admin-filter-btn" data-filter="waiting" onclick="filterTable('waiting')" style="background:var(--primary); box-shadow:var(--shadow-glow);">Waiting / Active List</button>
+        <button class="btn btn-sm admin-filter-btn" data-filter="waiting" onclick="filterTable('waiting')" style="background:var(--primary); box-shadow:var(--shadow-glow);">Waiting / Available List</button>
         <button class="btn btn-sm btn-ghost admin-filter-btn" data-filter="completed" onclick="filterTable('completed')">Completed History</button>
     </div>
 
@@ -39,13 +52,19 @@
                             <i class="fa-regular fa-clock"></i> ${t.bookingTime}<br>
                             Est. ${t.estimatedDuration} mins
                         </td>
-                        <td style="padding: 1rem 0.5rem; text-align: right;">
-                            <!-- Active Actions -->
-                            <form action="${pageContext.request.contextPath}/admin" method="POST" style="display:inline-block; margin-right: 0.5rem;" onsubmit="return confirm('Do you want to Call this token Next?');">
-                                <input type="hidden" name="tokenId" value="${t.id}">
-                                <input type="hidden" name="status" value="serving">
-                                <button type="submit" class="btn btn-sm btn-danger">Call Next</button>
-                            </form>
+                        <td style="padding: 1rem 0.5rem; text-align: right; min-width: 180px;">
+                            <c:choose>
+                                <c:when test="${t.status eq 'waiting'}">
+                                    <form action="${pageContext.request.contextPath}/admin" method="POST" style="display:inline-block; margin-right: 0.5rem;" onsubmit="this.querySelector('button').disabled=true; this.querySelector('button').innerText='Calling...'; return true;">
+                                        <input type="hidden" name="tokenId" value="${t.id}">
+                                        <input type="hidden" name="status" value="available">
+                                        <button type="submit" class="btn btn-sm btn-danger">Call Next</button>
+                                    </form>
+                                </c:when>
+                                <c:when test="${t.status eq 'available'}">
+                                    <span style="display:inline-block; margin-right: 0.5rem; color: var(--success); font-size: 0.85rem; font-weight: bold;"><i class="fa-solid fa-bell-concierge"></i> Called!</span>
+                                </c:when>
+                            </c:choose>
                             <form action="${pageContext.request.contextPath}/admin" method="POST" style="display:inline-block;" onsubmit="return confirm('Mark this booking as Completed?');">
                                 <input type="hidden" name="tokenId" value="${t.id}">
                                 <input type="hidden" name="status" value="completed">

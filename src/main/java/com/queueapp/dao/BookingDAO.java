@@ -63,6 +63,19 @@ public class BookingDAO {
         }
         return false;
     }
+
+    public boolean deleteBooking(int bookingId, int userId) {
+        String sql = "DELETE FROM bookings WHERE id = ? AND user_id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, bookingId);
+            stmt.setInt(2, userId);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
     
     private Booking extractBooking(ResultSet rs) throws SQLException {
         Booking t = new Booking();

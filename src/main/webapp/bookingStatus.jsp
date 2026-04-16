@@ -49,9 +49,9 @@
                             <div class="node-circle"><i class="fa-solid fa-clipboard-list"></i></div>
                             <div class="node-label">Waiting</div>
                         </div>
-                        <div class="timeline-node" id="node-serving">
-                            <div class="node-circle"><i class="fa-solid fa-concierge-bell"></i></div>
-                            <div class="node-label">Serving</div>
+                        <div class="timeline-node" id="node-available">
+                            <div class="node-circle"><i class="fa-solid fa-bell-concierge"></i></div>
+                            <div class="node-label">Available</div>
                         </div>
                         <div class="timeline-node" id="node-done">
                             <div class="node-circle"><i class="fa-solid fa-check-double"></i></div>
